@@ -1,5 +1,5 @@
 # Meraki_MX_Converter
-Meraki MX Converter - Import ASA config files and automatically adapt rules to the target MX. This script will parse through an existing ASA config and generate Meraki MX compatible FW rules. It'll then configure the target MX network with the ruleset mapping to the new interfaces.
+Meraki MX Converter - Import ASA config files and automatically adapt rules to the target MX. This script will parse through an existing ASA config and generate Meraki MX compatible FW rules. The script supports objects(network/service). It'll build iterative or multi-source/multi-destination L3 based rules. It'll then configure the target MX network with the ruleset mapping to the new interfaces.
 
 ![ASA RULES](images/ASA_MX_Rules.PNG)
 
