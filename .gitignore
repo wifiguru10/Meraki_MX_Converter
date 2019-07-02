@@ -1,0 +1,8 @@
+JCP_ardmore.txt
+JCP_networkmappings_raw.txt
+JCP_portmappings_raw.txt
+asa_to_mx_scrubbed.txt
+mx_l3fw_rules_*
+__pycache__
+JCP_acl_list.txt
+meraki-api.tar.gz

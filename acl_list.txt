@@ -1,0 +1,11 @@
+LP_access_in
+voice
+POS_Wired_access_in
+Server_access_in
+WLANAUTH_access_in
+management_access_in
+Vendor_access_in
+backoffice_access_in
+Wireless_POS_access_in
+WLAN_ACL
+OUTSIDE_access_in
