@@ -7,7 +7,7 @@ Meraki MX Converter - Import ASA config files and automatically adapt rules to t
 3. Create interfaces (vlan, ip and subnet) in that new network (these should match interfaces VLAN-ID in the config file)
 4. For step#3, the IP/subnets do not have to match, just the VLAN-ID. The script will auto-map the new IP/subnet to the ruleset
 5. Edit "acl_list.txt" this file should contain the names of every ACL rule you want to process
-5. Run the commandline "python3 mx_import.py -k <key> -o <org> -n <networkID> -c command <ASA CONFIG FILE>"
+5. Run the commandline "python3 mx_import.py -k \<key\> -o \<org\> -n \<networkID\> -c command \<ASA CONFIG FILE\>"
 
 # Requirements
 1. python 3.x
