@@ -2,8 +2,6 @@
 
 READ_ME = '''
 === PREREQUISITES ===
-Run in Python 3
-
 Install both requests & ciscoconfparse modules:
 pip[3] install --upgrade requests
 pip[3] install --upgrade ciscoconfparse
@@ -15,7 +13,6 @@ acl_list.txt (containing names of extended ACLs to parse) in the same folder.
 Extracts ASA extended ACL configuration to CSV ready for MX import.
 
 '''
-
 
 import csv
 from datetime import datetime
