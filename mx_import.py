@@ -381,8 +381,7 @@ def generateRules(config_file):
 def printhelp():
     #prints help text
 
-    print('This is a script to manage firewall rulesets, by backing them up, inserting new rules')
-    print('or replacing the whole ruleset.')
+    print('This is a script to manage firewall rules. Import legacy ASA configs into target MX network')
     print('')
     print('To run the script, enter:')
     print('python3 mx_import.py -k <key> -o <org> -n <networkID> -c command <ASA CONFIG FILE>')
@@ -436,6 +435,11 @@ def main(argv):
                 print("error(ARGV): invalid command")
                 sys.exit()
 
+    if len(argv) <= 1:
+        printhelp()
+        print()
+        print()
+        sys.exit(2)
 
     arg_file = argv[len(argv)-1]
 
