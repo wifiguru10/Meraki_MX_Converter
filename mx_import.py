@@ -86,7 +86,14 @@ def getVlans(morg):
         sys.exit()
 
     print("DONE")
-    result = api_client.vlans.get_network_vlans(net)
+    try:
+        result = api_client.vlans.get_network_vlans(net)
+    except:
+        print()
+        print("error(API): Can't connect to dashboard or view vlans. Make sure your target network has VLANs and that it's reachable")
+        print()
+        sys.exit()
+
     for r in result:
         vlanID = ""
         if 'id' in r:
@@ -115,20 +122,31 @@ def getVlans(morg):
 #parses through lines and poplulates network_interfaces(Dict)
 #used to identify "current" interfaces, to be used to swap for "new"
 def find_interfaces(intName, lines,network_interfaces):
-    for l in lines:
-        cvl = intName.split('.')[1] #calculated VLAN from name
-        if not cvl in network_interfaces:
-            network_interfaces[cvl] = {'name':intName, 'vlan':'', 'ip':'', 'mask':''}
-        if "vlan" in l.text:
-            t_vlan = l.text.split()[1]
-            if t_vlan.isdigit():
-#                print("VLAN:"+ t_vlan)
-                network_interfaces[cvl]['vlan'] = t_vlan
-        if "ip address" in l.text:
-            lt = l.text.split()
-            if isIP(lt[2]) and isIP(lt[3]):
-                network_interfaces[cvl]['ip'] = lt[2]
-                network_interfaces[cvl]['mask'] = lt[3]
+    if "GigabitEthernet" in intName:
+        network_interfaces['1'] = {'name':intName, 'vlan':'1', 'ip':'', 'mask':''}
+        for l in lines:
+            if "ip address" in l.text:
+                lt = l.text.split()
+                if isIP(lt[2]) and isIP(lt[3]):
+                    network_interfaces['1']['ip'] = lt[2]
+                    network_interfaces['1']['mask'] = lt[3]
+
+    else:
+        #not a single interface but multiple
+        for l in lines:
+            cvl = intName.split('.')[1] #calculated VLAN from name
+            if not cvl in network_interfaces:
+                network_interfaces[cvl] = {'name':intName, 'vlan':'', 'ip':'', 'mask':''}
+            if "vlan" in l.text:
+                t_vlan = l.text.split()[1]
+                if t_vlan.isdigit():
+    #                print("VLAN:"+ t_vlan)
+                    network_interfaces[cvl]['vlan'] = t_vlan
+            if "ip address" in l.text:
+                lt = l.text.split()
+                if isIP(lt[2]) and isIP(lt[3]):
+                    network_interfaces[cvl]['ip'] = lt[2]
+                    network_interfaces[cvl]['mask'] = lt[3]
     return
 
 
@@ -219,7 +237,22 @@ def parseRules(morg):
         intName = element.text
         text = find_interfaces(intName, lines,morg.network_interfaces)
 
+    if len(morg.network_interfaces) <= 0:
+        print("error(parse): No interfaces detected")
+        print("error(parse): Using GigabitEthernet0/0 instead")
+        int_objects = parse.find_objects(r'GigabitEthernet0/1')
+        for element in int_objects:
+            lines = element.children
+            intName = element.text
+            text = find_interfaces(intName, lines,morg.network_interfaces)
+
     print("Imported Config Network Interfaces:")
+    if len(morg.network_interfaces) <= 0:
+        print("warning(parse): Can't find any interfaces in the config file ")
+        if len(morg.target_interfaces) == 1:
+            print("warning{parse): But at least you have one in the network")
+        else:
+            exit()
     for n in morg.network_interfaces:
         i=morg.network_interfaces[n]
         print("Vlan[" + i['vlan'] + "]  IP["+i['ip']+"] Mask["+i['mask']+"]")
@@ -329,9 +362,10 @@ def loadRules(morg,csv_reader):
         srcp = newFWrules.rules[count].src_port.lower()
         dstp = newFWrules.rules[count].dest_port.lower()
         pol  = newFWrules.rules[count].policy.lower()
-        if src == "any" and dst == "any" and srcp == "any" and dstp == "any" and pol == "allow":
+        if src == "any" and dst == "any" and srcp == "any" and dstp == "any":
             foobar = newFWrules.rules.pop(count)
             print("warning- popped any/any/any/any rule! discarding") 
+            
             #do nothing here, rule won't be saved which is desired behavior
             
         

@@ -69,3 +69,4 @@ www,TCP,80,World Wide Web
 xdmcp,UDP,177,X Display Manager Control Protocol
 sip,"TCP, UDP",5060,SIP port TCP
 svc-http,TCP,80,World wide web
+rtsp,TCP,554,Real Time Streaming Protocol

@@ -96,6 +96,7 @@ def asa_to_mx_l3(network_object_lines, network_mappings):
             #    output += t + ','
             
            #return output[:-1]
+
         elif commands[0] == "host": #solves single host network object
             if isIP(commands[1]): return commands[1]+"/32"
             else:
@@ -115,6 +116,8 @@ def asa_to_mx_l3(network_object_lines, network_mappings):
                 output += ip.with_prefixlen
                 print(output)
                 return output
+        elif commands[0] == "description":
+            continue
 
         else: #something new and unknown
             print("NOT an network-object or group")
@@ -237,6 +240,8 @@ def asa_to_mx_l4(service_object_lines, port_mappings):
             commands.remove('group-object')
         elif commands[0] == 'service-object':
             commands.remove('service-object')
+        elif 'protocol-object' in commands:
+            sys.exit("HAAAAALT")
 
         else:
             print("Error ASA_TO_MX_L4")
@@ -252,7 +257,14 @@ def asa_to_mx_l4(service_object_lines, port_mappings):
             else:
                 output += port_mappings[port]
         elif len(commands) == 3 and commands[0] == 'range':
-            output += '{0}-{1}'.format(commands[1], commands[2])
+            #added extra logic here to look for named objects in ranges
+            t1 = commands[1]
+            t2 = commands[2]
+            if commands[1] in port_mappings:
+                t1 = port_mappings[commands[1]]
+            if commands[2] in port_mappings:
+                t2 = port_mappings[commands[2]]
+            output += '{0}-{1}'.format(t1, t2)
         elif len(commands) == 1:
             #port = commands[0]
             print("Single Port usecase")
@@ -267,7 +279,13 @@ def asa_to_mx_l4(service_object_lines, port_mappings):
             #print("Service object usecase " + str(output) + " RAW[" + str(commands) + "]")
             #print(port_mappings['www'])
         elif len(commands) >=3 and commands[2] == 'range':
-            output += '{0}-{1}'.format(commands[3], commands[4])
+            t3 = commands[3]
+            t4 = commands[4]
+            if commands[3] in port_mappings:
+                t1 = port_mappings[commands[3]]
+            if commands[4] in port_mappings:
+                t2 = port_mappings[commands[4]]
+            output += '{0}-{1}'.format(t3, t4)
             print("Service object Range usecase " + str(output) + " RAW[" + str(commands) + "]")
         else:
             print("Error ASA_TO_MX_L4 port parsing")
@@ -614,8 +632,16 @@ def asa_to_mx(arg_file):
                 print(rule)
 #                sys.exit(command)
 
-            if next_field == "range":
-                rule['destPort'] = enumerate_ports(fields[0] + "-" + fields[1])
+            if next_field == "range":  
+                if fields[0] in port_mappings or fields[1] in port_mappings:
+                    print("error(ACL): Named Object in range")
+                    sys.exit("BARF")
+                else:
+                    print("we're good")
+                
+                rule['destPort'] = fields[0] + '-' + fields[1]
+#                rule['destPort'] = enumerate_ports(fields[0] + "-" + fields[1]) #adding a fix here to solve for range "135-netbios"
+
                 next_field = fields.pop(0)
                 next_field = fields.pop(0)
                 if len(fields) > 0: next_field = fields.pop(0)
@@ -629,8 +655,10 @@ def asa_to_mx(arg_file):
                 elif next_field.isdigit():
                     rule['destPort'] = next_field
                 elif next_field == "range":
-                    port_range = (fields[0] +"-"+fields[1])
-                    rule['destPort'] = enumerate_ports(port_range)
+                    port_range = (fields[0] + "-" + fields[1])
+#                    rule['destPort'] = enumerate_ports(port_range)
+                    rule['destPort'] = port_range
+
                 elif next_field in port_mappings:
                     rule['destPort'] = port_mappings[next_field]
                 else:
