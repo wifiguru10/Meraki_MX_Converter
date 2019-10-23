@@ -19,7 +19,7 @@ Meraki MX Converter - Import ASA config files and automatically adapt rules to t
 # Requirements
 1. python 3.x
 2. meraki SDK for python (https://developer.cisco.com/meraki/api/#/python/getting-started)
-3. misc python libraries
+3. install python packages ('pip3 install -r requirements.txt')
 
 # Known caveats:
 -limitations on source addresses rules, you can only import a rule if the source address/subnet exists on the target MX. The script will omit subnets for which it doesn't have a local interface or default route.
